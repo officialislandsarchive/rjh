@@ -1,60 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HandTrack.js on Webcam</title>
-    <style>
-        body { text-align: center; background: #222; color: white; }
-        canvas { position: absolute; top: 0; left: 0; }
-    </style>
+
+  <meta charset="UTF-8">
+  <title>Handtrack.js : A library for prototyping realtime handtracking in the browser. </title>
+  <link rel="stylesheet" href="https://unpkg.com/carbon-components@latest/css/carbon-components.css" />
+  <link rel="stylesheet" href="css/track.css">
 </head>
-<body>
-    <h1>Hand Tracking on Webcam</h1>
-    <video id="webcam" autoplay></video>
-    <canvas id="overlay"></canvas>
 
-    <script src="https://cdn.jsdelivr.net/npm/handtrackjs@latest/dist/handtrack.min.js"></script>
-    <script>
-        const video = document.getElementById('webcam');
-        const canvas = document.getElementById('overlay');
-        const ctx = canvas.getContext('2d');
+<body class="bx--body p20">
+  <!-- <img id="img" src="hand.jpg"/>  -->
+  <div class="p20">
+    Handtrack.js allows you prototype handtracking interactions in the browser in 3 lines of code.
+  </div>
+  <div class="mb10">
+    <button  id="trackbutton" class="bx--btn bx--btn--secondary" type="button" disabled>
+      Toggle Video
+    </button>
+    <button id="nextimagebutton" class="mt10 bx--btn bx--btn--secondary" type="button" disabled>
+      Next Image
+    </button>
+    <div id="updatenote" class="updatenote mt10"> loading model ..</div>
+  </div>
+  <video class="videobox canvasbox" autoplay="autoplay" id="myvideo"></video>
+  <canvas id="canvas" class="border canvasbox"></canvas>
+  <div class="mt10">
+    <img src="images/1.jpg" class="canvasbox  hidden" id="handimage" alt="">
 
-        async function setupCamera() {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-            return new Promise(resolve => video.onloadedmetadata = resolve);
-        }
+  </div>
 
-        async function runHandTracking() {
-            await setupCamera();
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-
-            const model = await handTrack.load();
-            console.log("HandTrack.js Model Loaded!");
-
-            async function detectHands() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                const predictions = await model.detect(video);
-                predictions.forEach(prediction => {
-                    const [x, y, width, height] = prediction.bbox;
-                    ctx.strokeStyle = "red";
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(x, y, width, height);
-
-                    ctx.fillStyle = "red";
-                    ctx.fillText(prediction.label, x, y - 5);
-                });
-
-                requestAnimationFrame(detectHands);
-            }
-
-            detectHands();
-        }
-
-        runHandTracking();
-    </script>
+  <script src="https://unpkg.com/carbon-components@latest/scripts/carbon-components.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/handtrackjs@0.0.13/dist/handtrack.min.js"> </script> -->
+  <script src="lib/handtrack.min.js"> </script>
+  <script src="js/index.js"></script>
 </body>
+
 </html>
