@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HandTrack.js on Webcam</title>
+    <style>
+        body { text-align: center; background: #222; color: white; }
+        canvas { position: absolute; top: 0; left: 0; }
+    </style>
+</head>
+<body>
+    <h1>Hand Tracking on Webcam</h1>
+    <video id="webcam" autoplay></video>
+    <canvas id="overlay"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/handtrackjs@latest/dist/handtrack.min.js"></script>
+    <script>
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('overlay');
+        const ctx = canvas.getContext('2d');
+
+        async function setupCamera() {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            return new Promise(resolve => video.onloadedmetadata = resolve);
+        }
+
+        async function runHandTracking() {
+            await setupCamera();
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const model = await handTrack.load();
+            console.log("HandTrack.js Model Loaded!");
+
+            async function detectHands() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const predictions = await model.detect(video);
+                predictions.forEach(prediction => {
+                    const [x, y, width, height] = prediction.bbox;
+                    ctx.strokeStyle = "red";
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(x, y, width, height);
+
+                    ctx.fillStyle = "red";
+                    ctx.fillText(prediction.label, x, y - 5);
+                });
+
+                requestAnimationFrame(detectHands);
+            }
+
+            detectHands();
+        }
+
+        runHandTracking();
+    </script>
+</body>
+</html>
